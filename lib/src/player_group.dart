@@ -248,7 +248,7 @@ class AssetsAudioPlayerGroup {
         await player.play();
       }
     }
-    _isPlaying.value = true;
+    _isPlaying.add(true);
     await _onPlayersChanged();
   }
 
@@ -262,7 +262,7 @@ class AssetsAudioPlayerGroup {
         await player.pause();
       }
     }
-    _isPlaying.value = false;
+    _isPlaying.add(false);
     await _onPlayersChanged();
   }
 
@@ -278,7 +278,7 @@ class AssetsAudioPlayerGroup {
         await player.stop();
       }
     }
-    _isPlaying.value = false;
+    _isPlaying.add(false);
     await _onPlayersChanged();
   }
 

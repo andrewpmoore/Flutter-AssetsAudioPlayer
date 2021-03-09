@@ -31,6 +31,7 @@ export 'loop.dart';
 export 'errors.dart';
 export 'PhoneStrategy.dart';
 
+
 const _DEFAULT_AUTO_START = true;
 const _DEFAULT_RESPECT_SILENT_MODE = false;
 const _DEFAULT_SHOW_NOTIFICATION = false;
@@ -147,10 +148,9 @@ class AssetsAudioPlayer {
         case "selectNotification":
           {
             final String audioId = call.arguments;
-            __onNotificationClicked.value =
-                ClickedNotificationWrapper(ClickedNotification(
+            __onNotificationClicked.add(ClickedNotificationWrapper(ClickedNotification(
               audioId: audioId,
-            ));
+            )));
             break;
           }
       }
@@ -428,7 +428,7 @@ class AssetsAudioPlayer {
 
   Future<void> setLoopMode(LoopMode value) async {
     _playlist.loopMode = value;
-    _loopMode.value = value;
+    _loopMode.add(value);
     if (_playlist.isSingleAudio || value == LoopMode.single) {
       _loopSingleAudio(value != LoopMode.none);
     } else {
@@ -438,7 +438,7 @@ class AssetsAudioPlayer {
 
   /// assign the shuffling state : true -> shuffling, false -> not shuffling
   set shuffle(value) {
-    _shuffle.value = value;
+    _shuffle.add(value);
   }
 
   /// toggle the looping state
@@ -537,7 +537,7 @@ class AssetsAudioPlayer {
           break;
         case METHOD_AUDIO_SESSION_ID:
           if (call.arguments != null) {
-            _audioSessionId.value = call.arguments;
+            _audioSessionId.add(call.arguments);
           }
           break;
         case METHOD_CURRENT:
@@ -552,9 +552,9 @@ class AssetsAudioPlayer {
               );
               _playlistAudioFinished.add(finishedPlay);
             }
-            _playlistFinished.value = true;
-            _current.value = null;
-            _playerState.value = PlayerState.stop;
+            _playlistFinished.add(true);
+            _current.add(null);
+            _playerState.add(PlayerState.stop);
           } else {
             final totalDurationMs =
                 _toDuration(call.arguments["totalDurationMs"]);
@@ -575,7 +575,7 @@ class AssetsAudioPlayer {
                     nextIndex: _playlist.nextIndex(),
                     previousIndex: _playlist.previousIndex()),
               );
-              _current.value = current;
+              _current.add(current);
             }
           }
           break;
@@ -585,22 +585,22 @@ class AssetsAudioPlayer {
           break;
         case METHOD_IS_PLAYING:
           final bool playing = call.arguments;
-          _isPlaying.value = playing;
-          _playerState.value = playing ? PlayerState.play : PlayerState.pause;
+          _isPlaying.add(playing);
+          _playerState.add(playing ? PlayerState.play : PlayerState.pause);
           break;
         case METHOD_VOLUME:
-          _volume.value = call.arguments;
+          _volume.add(call.arguments);
           break;
         case METHOD_IS_BUFFERING:
-          _isBuffering.value = call.arguments;
+          _isBuffering.add(call.arguments);
           break;
         case METHOD_PLAY_SPEED:
-          _playSpeed.value = call.arguments;
+          _playSpeed.add(call.arguments);
           break;
         case METHOD_FORWARD_REWIND_SPEED:
           final double newValue = call.arguments;
           if (_forwardRewindSpeed.value != newValue) {
-            _forwardRewindSpeed.value = newValue;
+            _forwardRewindSpeed.add(newValue);
           }
           break;
         default:
@@ -686,7 +686,7 @@ class AssetsAudioPlayer {
               playerId: this.id,
             ))
         .listen((readingInfos) {
-      this._realtimePlayingInfos.value = readingInfos;
+      this._realtimePlayingInfos.add(readingInfos);
     });
   }
 
@@ -733,7 +733,7 @@ class AssetsAudioPlayer {
       newValue = value.round();
     }
     if (newValue != null) {
-      _currentPosition.value = Duration(milliseconds: newValue);
+      _currentPosition.add(Duration(milliseconds: newValue));
       if (loopMode.value == LoopMode.single ||
           (this._playlist.isSingleAudio &&
               loopMode.value == LoopMode.playlist)) {
@@ -756,12 +756,12 @@ class AssetsAudioPlayer {
             );
             _playlistAudioFinished.add(finishedPlay);
             if (_playlist.isSingleAudio) {
-              _playlistFinished.value = true;
+              _playlistFinished.add(true);
             }
           } else if (newJustStarted && _playlistFinished.value == true) {
             //if was true (just finished an audio)
             //re-set it to false
-            _playlistFinished.value = false;
+            _playlistFinished.add(false);
           }
         }
       }
@@ -875,9 +875,9 @@ class AssetsAudioPlayer {
   Future<void> _onFinished(bool isFinished) async {
     bool nextDone = await _next(stopIfLast: false, requestByUser: false);
     if (nextDone) {
-      _playlistFinished.value = false; //continue playing the playlist
+      _playlistFinished.add(false); //continue playing the playlist
     } else {
-      _playlistFinished.value = true; // no next elements -> finished
+      _playlistFinished.add(true); // no next elements -> finished
       await stop();
     }
   }
@@ -1028,7 +1028,7 @@ class AssetsAudioPlayer {
         await setLoopMode(loopMode);
 
         _stopped = false;
-        _playlistFinished.value = false;
+        _playlistFinished.add(false);
       } catch (e) {
         _lastOpenedAssetsAudio = currentAudio; //revert to the previous audio
         _current.add(null);
